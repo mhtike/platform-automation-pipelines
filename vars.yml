@@ -1,0 +1,4 @@
+platform-automation-bucket: https://s3.ap-northeast-1.amazonaws.com
+credhub-server: "https://${BOSH_ENVIRONMENT}:8844"
+opsman-url: https://pcf.tst.pcf.how
+pipeline-repo: git@github.com:username/platform-automation-pipelines
