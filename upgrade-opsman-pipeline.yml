@@ -13,6 +13,21 @@ resources:
     product_slug: platform-automation
     api_token: ((pivnet-refresh-token))
 
+- name: env
+  type: git
+  source:
+    uri: ((pipeline-repo))
+    private_key: ((plat-auto-pipes-deploy-key.private_key))
+    branch: master
+
+- name: installation
+  type: s3
+  source:
+    access_key_id: ((s3-access-key-id))
+    secret_access_key: ((s3-secret-key))
+    bucket: ((platform-automation-bucket))
+    regexp: foundation/installation-(.*).zip
+
 jobs:
 - name: export-installation
   serial: true
@@ -28,6 +43,19 @@ jobs:
         globs: ["*tasks*.zip"]
         unpack: true
     - get: env
+    - task: credhub-interpolate
+      image: platform-automation-image
+      file: platform-automation-tasks/tasks/credhub-interpolate.yml
+      params:
+        CREDHUB_CLIENT: ((credhub-client))
+        CREDHUB_SECRET: ((credhub-secret))
+        CREDHUB_SERVER: https://your-credhub.example.com
+        PREFIX: /concourse/your-team-name/foundation
+        INTERPOLATION_PATHS: foundation # contains env.yml
+      input_mapping:
+        files: env
+      output_mapping:
+        interpolated-files: interpolated-env
     - task: export-installation
       image: platform-automation-image
       file: platform-automation-tasks/tasks/export-installation.yml
