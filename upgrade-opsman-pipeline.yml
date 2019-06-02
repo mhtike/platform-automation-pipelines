@@ -14,7 +14,8 @@ resources:
     api_token: ((pivnet-refresh-token))
 
 jobs:
-- name: test
+- name: export-installation
+  serial: true
   plan:
     - get: platform-automation-image
       resource: platform-automation
@@ -26,6 +27,11 @@ jobs:
       params:
         globs: ["*tasks*.zip"]
         unpack: true
-    - task: test
+    - get: env
+    - task: export-installation
       image: platform-automation-image
-      file: platfo
+      file: platform-automation-tasks/tasks/export-installation.yml
+    - put: installation
+      params:
+        file: installation/installation-*.zip
+
